@@ -69,8 +69,14 @@ where categoria = 'Eletrônicos';
 
 
 --3) Mostre o nome e o preço de venda dos produtos que custam mais de 1000 reais.
+SELECT nome_produto, preco_venda
+FROM Produtos
+WHERE preco_venda > 1000;
 
 --4) Liste os clientes que moram em 'São Paulo'.
+SELECT nome, cidade
+FROM Clientes
+WHERE cidade = 'São Paulo';
 
 --5) Selecione os 3 primeiros clientes cadastrados na tabela.
 
