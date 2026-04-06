@@ -79,8 +79,15 @@ FROM Clientes
 WHERE cidade = 'São Paulo';
 
 --5) Selecione os 3 primeiros clientes cadastrados na tabela.
+SELECT nome, data_cadastro
+FROM Clientes
+ORDER BY data_cadastro ASC
+LIMIT 3;
 
 --6) Liste os produtos que não estão ativos (campo ativo).
+SELECT nome_produto, ativo
+FROM Produtos
+WHERE ativo = 0;
 
 --7) Mostre nome e sobrenome dos clientes, ordenados alfabeticamente pelo sobrenome.
 
