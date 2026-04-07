@@ -89,63 +89,136 @@ SELECT nome_produto, ativo
 FROM Produtos
 WHERE ativo = 0;
 
---7) Mostre nome e sobrenome dos clientes, ordenados alfabeticamente pelo sobrenome.
+--7) Nome e sobrenome ordenados pelo sobrenome: (Dica: ORDER BY sobrenome).
+SELECT nome, sobrenome
+FROM Clientes
+ORDER BY sobrenome;
 
 --8) Liste produtos com estoque atual entre 10 e 50 unidades.
+SELECT nome_produto, estoque_atual
+FROM Produtos
+WHERE estoque_atual BETWEEN 10 AND 50;
 
---9) Encontre clientes que tenham 'Silva' no sobrenome (Dica: use LIKE).
+--9) Encontre clientes que tenham 'Silva' no sobrenome.
+SELECT nome, sobrenome
+FROM Clientes
+WHERE sobrenome LIKE '%Silva%';
 
 --10) Liste produtos das categorias 'Móveis' ou 'Áudio'.
-
+SELECT nome_produto, categoria
+from Produtos
+where categoria IN ('Móveis','Áudio');
 
 
 --Bloco 2: Matemática e Agregações (11-20) 
 --Foco: SUM, AVG, MAX, MIN, COUNT e Operadores Matemáticos.
 
-
 --11. Calcule o valor total do estoque (preço de venda × estoque).
+SELECT SUM(preco_venda * estoque_atual) AS Total_estoque
+FROM Produtos
+Total_estoque;
+
 
 --12. Calcule o lucro unitário de cada produto (venda - custo).
+SELECT nome_produto, (preco_venda - preco_custo) AS Lucro_Unitario
+FROM Produtos
+Lucro_Unitario;
 
 --13. Qual a média de limite de crédito dos clientes?
+SELECT AVG(limite_credito) AS Media_limite
+FROM Clientes;
+
 
 --14. Qual o maior preço de venda da loja?
+SELECT MAX(preco_venda) as Maior_preco
+FROM Produtos;
+
 
 --15. Quantos produtos existem na categoria 'Acessórios'?
+SELECT COUNT(*) AS Quantidade
+FROM Produtos
+where categoria = 'Acessórios';
+
 
 --16. Qual a média de preço dos produtos ativos?
+SELECT AVG(preco_venda) AS Media_preco
+FROM Produtos
+where ativo = 1;
 
 --17. Quantos clientes nasceram antes de 1990?
+SELECT COUNT(id_cliente) AS Nascidos_antes
+FROM Clientes
+WHERE data_nascimento < '1990-01-01';
 
 --18. Qual o menor preço de custo da tabela?
+SELECT MIN(preco_custo) AS Menor_custo
+FROM Produtos;
 
 --19. Somar o limite de crédito apenas dos clientes VIP.
+select SUM(limite_credito) as Clientes_VIP
+FROM Clientes
+WHERE vip = 1;
 
 --20. Contar quantos fornecedores diferentes existem (usando DISTINCT).
-
+SELECT COUNT(DISTINCT fornecedor) as Quantidade_Fornecedores
+FROM Produtos;
 
 --Bloco 3: Agrupamentos e Filtros de Grupo (21-30) 
 --Foco: GROUP BY e HAVING.
 
 --21. Conte quantos produtos existem por categoria.
+SELECT categoria, COUNT(*) as Quantidade
+FROM Produtos
+GROUP BY categoria;
 
 --22. Calcule a média de preço de venda por categoria.
+SELECT categoria, AVG(preco_venda) AS Media_preco 
+from Produtos
+group by categoria;
 
 --23. Mostre o faturamento potencial por fornecedor.
+select fornecedor, SUM(preco_venda * estoque_atual) AS Potencial_Faturamento
+FROM Produtos
+GROUP BY fornecedor;
 
 --24. Liste categorias que têm mais de 2 produtos.
+SELECT categoria
+from Produtos
+group by categoria
+HAVING COUNT(*) > 2;
 
 --25. Qual a média de limite de crédito por estado?
+SELECT estado, AVG(limite_credito) as Media_Estado
+FROM Clientes
+GROUP BY estado;
 
 --26. Mostre o total de estoque por fornecedor, mas só para quem tem mais de 50 itens.
+SELECT fornecedor, SUM(estoque_atual) AS Total_estoque_fornecedor
+FROM Produtos
+GROUP BY fornecedor
+HAVING Total_estoque_fornecedor > 50;
 
 --27. Quantos clientes VIP existem em cada cidade?
+SELECT cidade, COUNT(vip) AS Clientes_VIP
+FROM Clientes
+WHERE vip = 1
+group by cidade;
 
 --28. Qual o lucro total esperado por categoria?
+SELECT categoria, SUM(preco_venda - preco_custo * estoque_atual) as Lucro_total
+FROM Produtos
+GROUP BY categoria;
 
 --29. Liste fornecedores que possuem média de preço de custo acima de R$ 200.
+SELECT fornecedor, AVG(preco_custo) AS Media_custo
+FROM Produtos
+group by fornecedor
+having Media_custo > 200;
 
 --30. Agrupe os clientes por ano de nascimento.
+SELECT strftime('%Y', data_nascimento) AS Ano, COUNT(*) AS Total_Clientes
+FROM Clientes
+GROUP BY strftime('%Y', data_nascimento);
 
 
 --Bloco 4: Datas e Tipos de Dados (31-40) 
@@ -153,20 +226,42 @@ WHERE ativo = 0;
 
 
 --31. Liste clientes cadastrados no ano de 2023.
+SELECT nome, data_cadastro
+FROM Clientes
+WHERE strftime('%Y', data_cadastro) = '2023';
 
 --32. Mostre o nome do cliente e apenas o ano de nascimento.
+SELECT nome, strftime('%Y', data_nascimento) AS ANO_NASC
+FROM Clientes;
 
 --33. Quantos dias fazem que cada produto foi incluído no sistema?
+SELECT nome_produto, CAST(julianday('now') - julianday(data_inclusao) AS INT) AS Dias_No_Sistema
+FROM Produtos;
+
 
 --34. Liste clientes que fazem aniversário no mês atual.
+SELECT nome, data_nascimento
+FROM Clientes
+WHERE strftime('%m', data_nascimento) = strftime('%m', 'now');
 
 --35. Transforme todos os nomes de produtos para letras maiúsculas.
+SELECT UPPER(nome_produto) AS Nome_grande 
+FROM Produtos;
 
 --36. Concatene Nome e Sobrenome dos clientes em uma única coluna.
+SELECT nome || ' ' || sobrenome AS Nome_Completo 
+FROM Clientes;
 
 --37. Liste produtos incluídos na primeira quinzena de qualquer mês.
+select nome_produto, strftime('%d', data_inclusao)
+from Produtos
+where strftime('%d', data_inclusao) <= '15';
 
 --38. Filtre clientes com e-mail do domínio '@email.com'.
+select email
+from Clientes
+where email LIKE '%@email.com';
+
 
 --39. Mostre o preço de venda arredondado para cima.
 
