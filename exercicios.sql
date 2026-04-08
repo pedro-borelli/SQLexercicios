@@ -264,29 +264,62 @@ where email LIKE '%@email.com';
 
 
 --39. Mostre o preço de venda arredondado para cima.
+SELECT ROUND(preco_venda + 0.5) AS Preco_arredonda
+from Produtos;
 
 --40. Verifique quais clientes têm limite de crédito par.
-
+SELECT nome, limite_credito
+FROM Clientes
+WHERE limite_credito % 2 = 0;
 
 --Bloco 5: Subqueries e Lógica Avançada (41-50) 
 --Foco: Consultas aninhadas e correlações.
 
 --41. Liste produtos com preço acima da média geral.
+SELECT nome_produto, preco_venda
+FROM Produtos
+WHERE preco_venda > (SELECT AVG(preco_venda)FROM Produtos);
 
 --42. Encontre o cliente com o maior limite de crédito usando uma subquery.
+SELECT nome, limite_credito
+from Clientes
+WHERE limite_credito = (SELECT MAX(limite_credito) FROM Clientes);
+
 
 --43. Liste produtos que pertencem à categoria com mais itens no estoque.
+SELECT nome_produto, preco_venda, categoria  -- 1. O que queremos mostrar no final.
+FROM Produtos                               -- 2. De onde vêm esses dados.
+WHERE categoria = (                         -- 3. O "filtro" que espera uma resposta.
+  SELECT categoria                          -- 4. O que a subquery vai nos "responder".
+  FROM Produtos                             -- 5. Onde a subquery vai procurar.
+  GROUP BY categoria                        -- 6. Como ela vai organizar os dados.
+  ORDER BY SUM(estoque_atual) DESC          -- 7. Como ela vai decidir quem é o melhor.
+  LIMIT 1                                   -- 8. Pega só o primeiro da lista.
+);
 
 --44. Mostre o nome do produto e quanto ele representa (em %) do estoque total.
+SELECT nome_produto, (estoque_atual * 100.0 / (SELECT SUM(estoque_atual) FROM Produtos)) AS Porcentagem
+FROM Produtos;
 
---45. Liste clientes que moram no mesmo state da 'Ana Silva' (usando subquery).
+--45. Liste o nome do cliente e o nome do produto que ele comprou.
+SELECT Clientes.nome, Produtos.nome_produto
+FROM Clientes
+INNER JOIN Produtos ON Clientes.id_cliente = Produtos.id_produto;
 
---46. Quais produtos têm preço de venda superior ao preço de venda do 'Smartphone X'?
+--46. Liste o nome do cliente e o valor total dos produtos que estão vinculados a ele.
+SELECT Clientes.nome, SUM(Produtos.preco_venda) AS Total_Gasto
+FROM Clientes
+INNER JOIN Produtos ON Clientes.id_cliente = Produtos.id_produto
+GROUP BY Clientes.nome;
 
---47. Selecione produtos cujo estoque está abaixo da média de estoque da sua própria categoria.
+-- 47. Liste o nome do cliente e o nome do produto, mas apenas para produtos que o cliente teria saldo para comprar à vista usando todo o seu limite_credito.
+SELECT Clientes.nome, Produtos.nome_produto, Clientes.limite_credito, Produtos.preco_venda
+FROM Clientes
+INNER JOIN Produtos ON Clientes.limite_credito >= Produtos.preco_venda;
 
---48. Liste categorias onde todos os produtos estão ativos.
+-- 48. Gere uma lista que mostre o nome de todos os clientes que moram em 'São Paulo' e, ao lado, todos os produtos da categoria 'Acessórios'.
+SELECT Clientes.nome, Produtos.nome_produto
+FROM Clientes, Produtos
+WHERE Clientes.estado = 'SP' 
+  AND Produtos.categoria = 'Acessórios';
 
---49. Encontre clientes que possuem limite de crédito maior que a soma de todos os preços de custo.
-
---50. Crie um relatório final com Nome, Categoria, Preço e uma coluna dizendo se ele é "Caro" ou "Barato" (usando a média geral como base).
